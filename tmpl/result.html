@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{.Title}}</title>
+    </head>
+    <body>
+        <form action="/" method="post">
+            <input type="text" name="URL">
+            <input type="submit" value="Generate">
+        </form>
+        <p><input type="text" name="URL" value="http://{{.Host}}/{{.ShortURL}}"></p>
+        <p><a href="{{.ShortURL}}">{{.Host}}/{{.ShortURL}} <a></p>
+    </body>
+</html>
