@@ -1,7 +1,7 @@
 package main
 
 import (
-	urlshortcutter "UrlShortCutterApi/shortcutter"
+	"UrlShortCutterApi/shortcutter"
 	"fmt"
 	"html/template"
 	"net/http"
