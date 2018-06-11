@@ -1,11 +1,11 @@
 package main
 
 import (
-	urlshortcutter "UrlShortCutterApi/shortcutter"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
+	"url-short-cutter-API/shortcutter"
 
 	"github.com/gorilla/mux"
 )
