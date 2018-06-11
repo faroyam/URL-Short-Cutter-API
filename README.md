@@ -8,7 +8,7 @@ The package implements simple microservice with REST interface taking an URL and
 In order to use it, pass the url variable to the POST or GET request at http://localhost:8081/v1, for example, like this:
 
 ```sh
-curl https://localhost:8081/v1?url=https://golang.org/doc/
+curl http://localhost:8081/v1?url=https://golang.org/doc/
 ```
 
 The latter in python: 
