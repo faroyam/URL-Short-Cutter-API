@@ -30,6 +30,7 @@ func Converter(URL, mongoURL string) (shortURL string) {
 	session, err := mgo.Dial(mongoURL)
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 	defer session.Close()
 
@@ -54,6 +55,7 @@ func ReConverter(shortURL, mongoURL string) (longURL string) {
 	session, err := mgo.Dial(mongoURL)
 	if err != nil {
 		log.Println(err)
+		return ""
 	}
 	defer session.Close()
 
