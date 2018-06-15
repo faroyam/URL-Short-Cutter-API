@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
+	"os"
 	"strings"
 	"url-short-cutter-API/shortcutter"
 
@@ -17,10 +19,14 @@ type url struct {
 	Title    string
 }
 
-const host = "localhost:8081"
 const title = "URL Short-Cutter"
 
 func main() {
+	if len(os.Args) < 3 {
+		log.Fatal("\nfirst arguement: <localAddr:port>\nsecond arguement: <mongoAddr:port>")
+	}
+	var host = os.Args[1]
+	var mongo = os.Args[2]
 	muxer := mux.NewRouter()
 
 	muxer.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +34,7 @@ func main() {
 
 		if r.ContentLength > 0 {
 			toConvert := strings.TrimPrefix(strings.TrimPrefix(r.Form.Get("URL"), "https://"), "http://")
-			result := urlshortcutter.Converter(toConvert)
+			result := urlshortcutter.Converter(toConvert, mongo)
 			u := url{ShortURL: result, URL: toConvert, Host: host, Title: title}
 			t := template.Must(template.ParseFiles("tmpl/result.html"))
 			t.Execute(w, u)
@@ -42,15 +48,20 @@ func main() {
 	muxer.HandleFunc("/v1",
 		func(w http.ResponseWriter, r *http.Request) {
 			url := r.URL.Query().Get("url")
-			toConvert := strings.TrimPrefix(strings.TrimPrefix(url, "https://"), "http://")
-			result := host + "/" + urlshortcutter.Converter(toConvert)
-			w.Write([]byte(result))
+			if url != "" {
+				toConvert := strings.TrimPrefix(strings.TrimPrefix(url, "https://"), "http://")
+				result := host + "/" + urlshortcutter.Converter(toConvert, mongo)
+				w.Write([]byte(result))
+			} else {
+				w.Write([]byte("invalid request"))
+			}
+
 		})
 
 	muxer.HandleFunc("/{[A-Za-z0-9]+$}",
 		func(w http.ResponseWriter, r *http.Request) {
 			shortURL := strings.TrimLeft(r.RequestURI, "/")
-			longURL := "https://" + urlshortcutter.GetShortURL(shortURL)
+			longURL := "https://" + urlshortcutter.ReConverter(shortURL, mongo)
 			if longURL != "" {
 				http.Redirect(w, r, longURL, http.StatusSeeOther)
 			} else {
@@ -59,7 +70,7 @@ func main() {
 		})
 
 	http.Handle("/", muxer)
-	fmt.Printf("Starting %s at %s\n", title, host)
+	fmt.Printf("Starting %s at %s\nMongoDB at %s\n", title, host, mongo)
 	http.ListenAndServe(host, nil)
 
 }

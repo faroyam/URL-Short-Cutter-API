@@ -1,14 +1,20 @@
 package urlshortcutter
 
 import (
+	"log"
 	"math/rand"
 	"time"
+
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const symbols = "ABCDEFGHIJKLMNO5PQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
 
-var urlToShort = make(map[string]string)
-var urlToLong = make(map[string]string)
+type url struct {
+	LongURL  string
+	ShortURL string
+}
 
 func randomizer() (shortURL string) {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -19,27 +25,44 @@ func randomizer() (shortURL string) {
 }
 
 // Converter converts an user URL to short version
-func Converter(URL string) (shortURL string) {
+func Converter(URL, mongoURL string) (shortURL string) {
 
-	value, ok := urlToShort[URL]
-	switch ok {
-	case true:
-		return value
-	default:
-		shortURL := randomizer()
-		urlToShort[URL] = shortURL
-		urlToLong[shortURL] = URL
-		return shortURL
+	session, err := mgo.Dial(mongoURL)
+	if err != nil {
+		log.Println(err)
 	}
+	defer session.Close()
+
+	c := session.DB("url-short-cutter").C("URLs")
+
+	result := url{}
+	err = c.Find(bson.M{"longurl": URL}).One(&result)
+	if err != nil {
+		data := &url{LongURL: URL, ShortURL: randomizer()}
+		err = c.Insert(data)
+		if err != nil {
+			log.Println(err)
+		}
+		return data.ShortURL
+	}
+	return result.ShortURL
 }
 
-// GetShortURL returns long url from short
-func GetShortURL(shortURL string) (longURL string) {
-	longURL, ok := urlToLong[shortURL]
-	switch ok {
-	case true:
-		return longURL
-	default:
+// ReConverter returns long url from short
+func ReConverter(shortURL, mongoURL string) (longURL string) {
+
+	session, err := mgo.Dial(mongoURL)
+	if err != nil {
+		log.Println(err)
+	}
+	defer session.Close()
+
+	c := session.DB("url-short-cutter").C("URLs")
+
+	result := url{}
+	err = c.Find(bson.M{"shorturl": shortURL}).One(&result)
+	if err != nil {
 		return ""
 	}
+	return result.LongURL
 }
