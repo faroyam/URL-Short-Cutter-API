@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"url-short-cutter-API/shortcutter"
+	"github.com/faroyam/url-short-cutter-API/urlshortcutter"
 
 	"github.com/gorilla/mux"
 )
