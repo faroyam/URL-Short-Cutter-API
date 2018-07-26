@@ -34,7 +34,7 @@ func main() {
 
 		if r.ContentLength > 0 {
 			toConvert := strings.TrimPrefix(strings.TrimPrefix(r.Form.Get("URL"), "https://"), "http://")
-			result := urlshortcutter.Converter(toConvert, mongo)
+			result := shortcutter.Converter(toConvert, mongo)
 			u := url{ShortURL: result, URL: toConvert, Host: host, Title: title}
 			t := template.Must(template.ParseFiles("tmpl/result.html"))
 			t.Execute(w, u)
@@ -50,7 +50,7 @@ func main() {
 			url := r.URL.Query().Get("url")
 			if url != "" {
 				toConvert := strings.TrimPrefix(strings.TrimPrefix(url, "https://"), "http://")
-				result := host + "/" + urlshortcutter.Converter(toConvert, mongo)
+				result := host + "/" + shortcutter.Converter(toConvert, mongo)
 				w.Write([]byte(result))
 			} else {
 				w.Write([]byte("invalid request"))
@@ -61,7 +61,7 @@ func main() {
 	muxer.HandleFunc("/{[A-Za-z0-9]+$}",
 		func(w http.ResponseWriter, r *http.Request) {
 			shortURL := strings.TrimLeft(r.RequestURI, "/")
-			longURL := "https://" + urlshortcutter.ReConverter(shortURL, mongo)
+			longURL := "https://" + shortcutter.ReConverter(shortURL, mongo)
 			if longURL != "" {
 				http.Redirect(w, r, longURL, http.StatusSeeOther)
 			} else {
