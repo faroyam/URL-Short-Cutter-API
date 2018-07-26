@@ -1,4 +1,4 @@
-package urlshortcutter
+package shortcutter
 
 import (
 	"log"
