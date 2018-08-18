@@ -20,5 +20,3 @@ The latter in python:
 localhost:8081/m62Kc
 >>> 
 ```
-
-Or just use a browser of your choice (http://localhost:8081).

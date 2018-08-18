@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/faroyam/url-short-cutter-API/config"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -14,6 +15,23 @@ const symbols = "ABCDEFGHIJKLMNO5PQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890
 type url struct {
 	LongURL  string
 	ShortURL string
+}
+type mongo struct {
+	MongoIP         string
+	MongoDBName     string
+	MongoCollection string
+	Session         *mgo.Session
+}
+
+func (d *mongo) connect() error {
+	var err error
+	d.Session, err = mgo.Dial(d.MongoIP)
+	return err
+}
+
+// Close mgo session
+func (d *mongo) Close() {
+	d.Session.Close()
 }
 
 func randomizer() (shortURL string) {
@@ -25,46 +43,39 @@ func randomizer() (shortURL string) {
 }
 
 // Converter converts an user URL to short version
-func Converter(URL, mongoURL string) (shortURL string) {
+func Converter(URL string) (string, error) {
 
-	session, err := mgo.Dial(mongoURL)
-	if err != nil {
-		log.Println(err)
-		return ""
-	}
-	defer session.Close()
-
-	c := session.DB("url-short-cutter").C("URLs")
+	c := DB.Session.DB(DB.MongoDBName).C(DB.MongoCollection)
 
 	result := url{}
-	err = c.Find(bson.M{"longurl": URL}).One(&result)
+	err := c.Find(bson.M{"longurl": URL}).One(&result)
 	if err != nil {
 		data := &url{LongURL: URL, ShortURL: randomizer()}
 		err = c.Insert(data)
-		if err != nil {
-			log.Println(err)
-		}
-		return data.ShortURL
+		return data.ShortURL, err
 	}
-	return result.ShortURL
+	return result.ShortURL, err
 }
 
 // ReConverter returns long url from short
-func ReConverter(shortURL, mongoURL string) (longURL string) {
+func ReConverter(shortURL string) (string, error) {
 
-	session, err := mgo.Dial(mongoURL)
-	if err != nil {
-		log.Println(err)
-		return ""
-	}
-	defer session.Close()
-
-	c := session.DB("url-short-cutter").C("URLs")
+	c := DB.Session.DB(DB.MongoDBName).C(DB.MongoCollection)
 
 	result := url{}
-	err = c.Find(bson.M{"shorturl": shortURL}).One(&result)
+	err := c.Find(bson.M{"shorturl": shortURL}).One(&result)
+	return result.LongURL, err
+}
+
+// DB Data Access Object
+var DB = mongo{}
+
+func init() {
+	DB.MongoIP = config.MongoIP
+	DB.MongoDBName = config.MongoDBName
+	DB.MongoCollection = config.MongoCollection
+	err := DB.connect()
 	if err != nil {
-		return ""
+		log.Fatal("connetcing to db error")
 	}
-	return result.LongURL
 }
