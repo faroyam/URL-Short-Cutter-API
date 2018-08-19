@@ -71,9 +71,9 @@ func ReConverter(shortURL string) (string, error) {
 var DB = mongo{}
 
 func init() {
-	DB.MongoIP = config.MongoIP
-	DB.MongoDBName = config.MongoDBName
-	DB.MongoCollection = config.MongoCollection
+	DB.MongoIP = config.C.MongoIP
+	DB.MongoDBName = config.C.MongoDBName
+	DB.MongoCollection = config.C.MongoCollection
 	err := DB.connect()
 	if err != nil {
 		log.Fatal("connetcing to db error")

@@ -1,0 +1,7 @@
+{
+    "service_name": "URL Short-Cutter",
+	"host_ip": "192.168.0.14:8081",
+	"mongo_ip": "192.168.0.11",
+	"mongo_db_name": "url-short-cutter",
+	"mongo_db_collection": "URLs"
+}

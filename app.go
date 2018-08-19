@@ -25,9 +25,9 @@ func main() {
 	Muxer.HandleFunc("/{[A-Za-z0-9]+$}", routes.Redirecter)
 	http.Handle("/", Muxer)
 
-	fmt.Printf("Starting %s at %s\nMongoDB at %s\n\n", config.Service, config.Host, config.MongoIP)
+	fmt.Printf("Starting %s at %s\nMongoDB at %s\n\n", config.C.Service, config.C.Host, config.C.MongoIP)
 
-	err := http.ListenAndServe(config.Host, nil)
+	err := http.ListenAndServe(config.C.Host, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

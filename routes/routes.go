@@ -22,7 +22,7 @@ func Converter(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode("db error")
 		}
 		log.Println(r.RemoteAddr, "converted", url, shortURL)
-		json.NewEncoder(w).Encode(config.Host + "/" + shortURL)
+		json.NewEncoder(w).Encode(config.C.Host + "/" + shortURL)
 	} else {
 		json.NewEncoder(w).Encode("invalid request")
 	}
