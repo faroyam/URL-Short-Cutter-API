@@ -1,12 +1,12 @@
 package routes
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
 
 	"github.com/faroyam/url-short-cutter-API/config"
+	"github.com/faroyam/url-short-cutter-API/response"
 	"github.com/faroyam/url-short-cutter-API/shortcutter"
 )
 
@@ -19,12 +19,16 @@ func Converter(w http.ResponseWriter, r *http.Request) {
 		shortURL, err := shortcutter.Converter(toConvert)
 		if err != nil {
 			log.Println("db error", err)
-			json.NewEncoder(w).Encode("db error")
+			w.WriteHeader(http.StatusForbidden)
+			response.NewResponse(w, "db error")
 		}
 		log.Println(r.RemoteAddr, "converted", url, shortURL)
-		json.NewEncoder(w).Encode(config.C.Host + "/" + shortURL)
+
+		w.WriteHeader(http.StatusOK)
+		response.NewResponse(w, config.C.Host+"/"+shortURL)
 	} else {
-		json.NewEncoder(w).Encode("invalid request")
+		w.WriteHeader(http.StatusForbidden)
+		response.NewResponse(w, "invalid request")
 	}
 
 }
@@ -36,7 +40,8 @@ func Redirecter(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println("not redirected:", r.RemoteAddr, shortURL, longURL, "err:", err)
-		json.NewEncoder(w).Encode("invalid request")
+		w.WriteHeader(http.StatusForbidden)
+		response.NewResponse(w, "invalid request")
 
 	} else {
 		log.Println("redirected:", r.RemoteAddr, shortURL, longURL, "err:", err)
