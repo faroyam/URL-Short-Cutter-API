@@ -8,6 +8,7 @@ import (
 
 type cfg struct {
 	Service         string `json:"service_name"`
+	Version         string `json:"version"`
 	Host            string `json:"host_ip"`
 	MongoIP         string `json:"mongo_ip"`
 	MongoDBName     string `json:"mongo_db_name"`
